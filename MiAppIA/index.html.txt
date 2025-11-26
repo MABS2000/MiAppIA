@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>IA Income Coach - MVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #050816;
+      --card: #0f172a;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --success: #4ade80;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #1d2a3f, #020617 60%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 960px;
+      background: linear-gradient(145deg, #020617, #020617 60%, #022c22);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      backdrop-filter: blur(14px);
+    }
+
+    @media (min-width: 768px) {
+      .app {
+        padding: 32px;
+      }
+    }
+
+    .app-header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 4px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      width: fit-content;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0;
+      letter-spacing: 0.03em;
+    }
+
+    .highlight {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 520px;
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    @media (min-width: 900px) {
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+        gap: 24px;
+      }
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 20px;
+      padding: 16px 16px 18px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .card-title h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .card-caption {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 10px 0;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    select,
+    input,
+    textarea {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 8px 10px;
+      font-size: 13px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease,
+        background 0.15s ease;
+    }
+
+    select:focus,
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+      background: rgba(15, 23, 42, 1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      max-height: 140px;
+    }
+
+    .range-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .range-row input[type="range"] {
+      flex: 1;
+    }
+
+    .range-value {
+      font-size: 12px;
+      color: var(--muted);
+      min-width: 52px;
+      text-align: right;
+    }
+
+    .btn {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #22c55e);
+      color: #020617;
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 14px 35px rgba(34, 197, 94, 0.35);
+      transition: transform 0.08s ease, box-shadow 0.08s ease,
+        filter 0.08s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      box-shadow: 0 18px 45px rgba(34, 197, 94, 0.45);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn span.icon {
+      font-size: 16px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+    }
+
+    .pill.impact {
+      border-color: rgba(34, 197, 94, 0.7);
+      color: var(--success);
+      background: rgba(22, 101, 52, 0.2);
+    }
+
+    #plan-output {
+      font-size: 13px;
+      line-height: 1.5;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    #plan-output h3 {
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    #plan-output ul {
+      padding-left: 18px;
+      margin: 4px 0 8px;
+    }
+
+    #plan-output li {
+      margin-bottom: 2px;
+    }
+
+    .tagline {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .tagline strong {
+      color: var(--accent);
+    }
+
+    .small-note {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.9);
+    }
+
+    .footer {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .footer strong {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        v0.1 • MVP ejecutable · IA Income Coach
+      </div>
+      <h1>
+        Aplica <span class="highlight">IA</span> para generar ingresos,
+        empezando <span class="highlight">hoy</span>
+      </h1>
+      <p class="subtitle">
+        Responde algunas preguntas y esta app generará un plan de ingresos con IA
+        adaptado a tu contexto, con impacto en tu comunidad. Versión MVP lista para
+        que la escales a nivel mundial.
+      </p>
+    </header>
+
+    <div class="layout">
+      <!-- LADO IZQUIERDO: FORMULARIO -->
+      <section class="card">
+        <div class="card-title">
+          <h2>1. Define tu punto de partida</h2>
+          <span class="status">
+            <span class="status-dot"></span> Listo para generar plan
+          </span>
+        </div>
+        <p class="card-caption">
+          Cuanto más honesto seas, más accionable será el plan.
+        </p>
+
+        <form id="plan-form" onsubmit="event.preventDefault(); generatePlan();">
+          <div class="field">
+            <label for="region">¿Dónde vives?</label>
+            <select id="region" required>
+              <option value="">Selecciona una opción</option>
+              <option value="latam_baja">
+                América Latina - ingreso bajo / informal
+              </option>
+              <option value="latam_media">
+                América Latina - ingreso medio
+              </option>
+              <option value="eu_usa">
+                Europa / USA / Canadá
+              </option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="skill">Nivel actual con tecnología / IA</label>
+            <select id="skill" required>
+              <option value="">Selecciona una opción</option>
+              <option value="novato">Casi cero, me cuesta la tecnología</option>
+              <option value="basico">Uso internet y apps básicas</option>
+              <option value="medio">
+                Manejo herramientas online y algo de IA
+              </option>
+              <option value="avanzado">Puedo aprender rápido cosas técnicas</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="time">Horas que puedes dedicar por día</label>
+            <div class="range-row">
+              <input
+                type="range"
+                id="time"
+                min="1"
+                max="10"
+                step="1"
+                value="3"
+                oninput="updateTimeValue(this.value)"
+              />
+              <span class="range-value" id="time-value">3 h/día</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="devices">¿A qué tienes acceso?</label>
+            <select id="devices" required>
+              <option value="">Selecciona una opción</option>
+              <option value="solo_movil">Solo smartphone y datos limitados</option>
+              <option value="movil_pc_cabina">
+                Smartphone + computador compartido / cabina
+              </option>
+              <option value="pc_casa">PC / laptop propio en casa</option>
+              <option value="pc_potente">
+                PC / laptop potente, buena conexión
+              </option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="goal">
+              Meta de ingresos mensuales (en USD o equivalente)
+            </label>
+            <input
+              type="number"
+              id="goal"
+              min="50"
+              max="100000"
+              step="10"
+              placeholder="Ej: 300, 1000, 5000…"
+            />
+          </div>
+
+          <div class="field">
+            <label for="impact">
+              ¿Qué impacto te gustaría generar además de ganar dinero?
+            </label>
+            <textarea
+              id="impact"
+              placeholder="Ej: ayudar a mi familia, crear empleo en mi barrio, enseñar a jóvenes, apoyar a personas endeudadas…"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn">
+            <span class="icon">⚡</span>
+            Generar plan de ingresos con IA
+          </button>
+
+          <p class="small-note">
+            Esta versión funciona offline como simulador. Luego podemos conectar
+            APIs de IA reales (OpenAI u otras) para hacerlo aún más potente.
+          </p>
+        </form>
+      </section>
+
+      <!-- LADO DERECHO: PLAN GENERADO -->
+      <section class="card">
+        <div class="card-title">
+          <h2>2. Plan generado para ti</h2>
+        </div>
+        <div class="pill-row">
+          <span class="pill impact">Enfoque en impacto social</span>
+          <span class="pill">IA aplicada a ingresos reales</span>
+          <span class="pill">Pensado para escalar globalmente</span>
+        </div>
+
+        <p class="card-caption">
+          Aquí aparece el plan personalizado en cuanto completes el formulario.
+          Úsalo como base de tu app mundial y mejóralo con feedback real de usuarios.
+        </p>
+
+        <div id="plan-output">
+          <p>
+            Completa los datos de la izquierda y pulsa
+            <strong>“Generar plan de ingresos con IA”</strong>.
+          </p>
+          <p>
+            Esta sección está lista para convertirse en el “mentor de IA” dentro
+            de tu app: más adelante podemos conectarla a un backend con modelos de
+            lenguaje y a una base de datos de casos de uso.
+          </p>
+        </div>
+
+        <p class="tagline">
+          <strong>Tu visión:</strong> romper el ciclo de pobreza y crear un caso
+          global de éxito. Esta app es el primer ladrillo.
+        </p>
+      </section>
+    </div>
+
+    <div class="footer">
+      <span>v0.1 • MVP sin backend • listo para publicar en Vercel / Netlify / GitHub Pages</span>
+      <span><strong>Próximo paso técnico:</strong> conectar un backend con IA real y usuarios.</span>
+    </div>
+  </div>
+
+  <script>
+    function updateTimeValue(value) {
+      const label = document.getElementById("time-value");
+      label.textContent = value + " h/día";
+    }
+
+    function generatePlan() {
+      const region = document.getElementById("region").value;
+      const skill = document.getElementById("skill").value;
+      const time = parseInt(document.getElementById("time").value, 10);
+      const devices = document.getElementById("devices").value;
+      const goalInput = document.getElementById("goal").value;
+      const impactText = document
+        .getElementById("impact")
+        .value.trim()
+        .toLowerCase();
+
+      const goal = goalInput ? parseInt(goalInput, 10) : null;
+      const output = document.getElementById("plan-output");
+
+      // Validación mínima
+      if (!region || !skill || !devices) {
+        output.innerHTML =
+          "<p style='color:#f97373'>Faltan datos clave. Completa región, nivel de habilidad y acceso a dispositivos.</p>";
+        return;
+      }
+
+      // Perfil general
+      let perfil = "";
+      if (region === "latam_baja") {
+        perfil +=
+          "Vives en un contexto de ingresos bajos en América Latina. Eso significa grandes limitaciones, pero también una enorme oportunidad: los costos son menores y cualquier mejora de ingresos tiene impacto inmediato en tu entorno.";
+      } else if (region === "latam_media") {
+        perfil +=
+          "Estás en un contexto de ingresos medios en América Latina. Tienes suficiente exposición para vender al mundo, pero también entiendes de cerca la realidad económica de la región.";
+      } else if (region === "eu_usa") {
+        perfil +=
+          "Estás en un entorno con mayor poder adquisitivo (Europa / USA / Canadá). Puedes vender servicios de alto valor y aprovechar clientes con más capacidad de pago.";
+      } else {
+        perfil +=
+          "Tu contexto no se ha especificado con detalle, pero construiremos un plan flexible que puedas adaptar a tu realidad local.";
+      }
+
+      // Tipo de modelo de ingreso sugerido
+      let modelos = [];
+      let focoInicial = "";
+
+      if (skill === "novato") {
+        modelos = [
+          "Servicios simples apoyados en IA (ej: redacción básica, descripciones de productos, mensajes para negocios locales)",
+          "Tareas asistidas (ej: organizar información, resumir contenido, atención al cliente simple con guiones)",
+          "Contenido corto para redes (posts, ideas de videos sencillos para negocios locales)"
+        ];
+        focoInicial =
+          "Empezar con servicios simples donde la IA haga la parte difícil y tú seas el puente con el cliente.";
+      } else if (skill === "basico") {
+        modelos = [
+          "Servicios de contenidos con IA (copywriting básico, posts para redes, guiones cortos)",
+          "Optimización de anuncios / publicaciones de negocios pequeños utilizando IA para generar variantes",
+          "Diseño sencillo con plantillas (mini-banners, flyers, piezas para redes)"
+        ];
+        focoInicial =
+          "Enfocarte en ofrecer servicios de marketing y contenido para negocios pequeños, usando IA para producir más rápido.";
+      } else if (skill === "medio") {
+        modelos = [
+          "Microagencia de contenido con IA (paquetes mensuales para negocios)",
+          "Automatización sencilla de tareas (formularios + hojas de cálculo + IA para respuestas)",
+          "Productos digitales simples (packs de prompts, plantillas, mini guías)"
+        ];
+        focoInicial =
+          "Construir servicios recurrentes (suscripciones) y productos digitales que puedan venderse muchas veces.";
+      } else if (skill === "avanzado") {
+        modelos = [
+          "Consultoría de IA para pequeñas empresas (automatización de procesos manuales)",
+          "Desarrollo de micro-herramientas no-code + IA (formularios inteligentes, asistentes por nicho)",
+          "Cursos / talleres sobre IA aplicada para grupos específicos (emprendedores, comercios, freelancers)"
+        ];
+        focoInicial =
+          "Enfocarte en tickets más altos (consultoría, herramientas) sin perder la visión de escalar.";
+      }
+
+      // Ajuste según dispositivos
+      let dispositivosTexto = "";
+      if (devices === "solo_movil") {
+        dispositivosTexto =
+          "Tu principal herramienta es el smartphone. El plan se centrará en modelos que puedas ejecutar con apps móviles (redes sociales, mensajería, apps de IA en la nube).";
+      } else if (devices === "movil_pc_cabina") {
+        dispositivosTexto =
+          "Combinas smartphone con acceso ocasional a computador. El plan usará el móvil para captura y gestión rápida, y el PC para tareas un poco más pesadas cuando puedas.";
+      } else if (devices === "pc_casa") {
+        dispositivosTexto =
+          "Tienes un PC o laptop en casa. Eso permite trabajar con herramientas web más potentes (dashboards, automatizaciones básicas, edición más cómoda).";
+      } else {
+        dispositivosTexto =
+          "Tienes un equipo relativamente potente y buena conexión. Eso te habilita para tareas más intensivas: automatizaciones, herramientas no-code, incluso algo de desarrollo.";
+      }
+
+      // Meta de ingresos
+      let metaTexto = "";
+      if (goal) {
+        if (goal <= 300) {
+          metaTexto =
+            "Tu meta de ingresos inicial es modesta, lo cual es perfecto para construir confianza y validar modelos de negocio rápido.";
+        } else if (goal <= 1000) {
+          metaTexto =
+            "Buscas llegar a un nivel de ingresos que puede cambiar de forma importante tus finanzas mensuales.";
+        } else if (goal <= 5000) {
+          metaTexto =
+            "Apuntas a un nivel de ingresos que ya exige pensar en sistemas y no solo en horas de trabajo.";
+        } else {
+          metaTexto =
+            "Tu meta es muy ambiciosa. Será clave pensar desde el principio en modelos escalables (suscripciones, productos digitales, automatizaciones, clientes internacionales).";
+        }
+      } else {
+        metaTexto =
+          "No has definido una cifra concreta de ingresos, pero igual construiremos un plan escalable. Más adelante deberías fijar un número para medir progreso.";
+      }
+
+      // Impacto
+      let impactoBloque = "";
+      if (impactText) {
+        impactoBloque =
+          "Has mencionado que quieres un impacto tipo: <strong>“" +
+          escapeHtml(impactText) +
+          "”</strong>. Vamos a anclar el plan a eso: no solo ganar dinero, sino usar la IA para elevar a otros (familia, barrio, clientes, jóvenes, etc.).";
+      } else {
+        impactoBloque =
+          "No has detallado aún qué impacto quieres generar, pero podemos alinear el plan para que, a medida que aumenten tus ingresos, ayudes a tu círculo cercano y luego a tu comunidad (enseñando, contratando o compartiendo herramientas).";
+      }
+
+      // Plan semanal
+      const semanasPlan = buildWeeklyPlan(skill, time, devices, region);
+
+      // Construir HTML final
+      let html = "";
+
+      html += "<h3>Perfil estratégico</h3>";
+      html += "<p>" + perfil + "</p>";
+      html += "<p>" + dispositivosTexto + "</p>";
+      html += "<p>" + metaTexto + "</p>";
+      html += "<p>" + impactoBloque + "</p>";
+
+      html += "<h3>Modelos de ingreso sugeridos (1er ciclo)</h3>";
+      html += "<ul>";
+      modelos.forEach((m) => {
+        html += "<li>" + m + "</li>";
+      });
+      html += "</ul>";
+      html += "<p><strong>Enfoque inicial:</strong> " + focoInicial + "</p>";
+
+      html += "<h3>Plan de acción de 4 semanas</h3>";
+      html += semanasPlan;
+
+      html += "<h3>Modo impacto</h3>";
+      html +=
+        "<ul>" +
+        "<li>Comprométete a ayudar al menos a <strong>3 personas</strong> de tu entorno a entender que la IA puede mejorar sus ingresos (familiares, amigos, vecinos).</li>" +
+        "<li>Documenta tu progreso (notas, capturas, resultados) para convertirlo luego en contenido que otros puedan seguir.</li>" +
+        "<li>Cuando logres tus primeros resultados, empaqueta el sistema en algo que otros puedan usar: una guía, un mini-curso o una mentoría accesible.</li>" +
+        "</ul>";
+
+      html += "<h3>Siguiente nivel (para convertir esto en empresa global)</h3>";
+      html +=
+        "<ul>" +
+        "<li>Sistematiza lo que funciona en plantillas y flujos claros (paso a paso).</li>" +
+        "<li>Piensa en tu app no solo como “herramienta personal”, sino como <strong>plataforma</strong> donde miles de personas puedan recibir su propio plan.</li>" +
+        "<li>Más adelante, añade registro de usuarios, guardado de planes y un backend con IA real para generar recomendaciones dinámicas.</li>" +
+        "</ul>";
+
+      output.innerHTML = html;
+    }
+
+    function buildWeeklyPlan(skill, time, devices, region) {
+      const horas = time;
+      const intensidad =
+        horas <= 2
+          ? "baja"
+          : horas <= 4
+          ? "media"
+          : horas <= 6
+          ? "alta"
+          : "muy alta";
+
+      function bullet(text) {
+        return "<li>" + text + "</li>";
+      }
+
+      let semana1 = "";
+      let semana2 = "";
+      let semana3 = "";
+      let semana4 = "";
+
+      // Semana 1 – Fundamentos + nicho
+      semana1 += bullet(
+        "Aprender lo básico de una o dos herramientas de IA (por ejemplo: modelos de texto y una herramienta de diseño o video). Céntrate en entender qué problemas resuelven."
+      );
+      semana1 += bullet(
+        "Definir un nicho inicial: negocios locales, emprendedores online, creadores de contenido, freelancers, etc. Elige uno que conozcas de cerca."
+      );
+      semana1 += bullet(
+        "Analizar 5–10 casos reales de gente que ya gana dinero con IA en tu nicho y anotar qué venden, a quién y cómo cobran."
+      );
+      if (region === "latam_baja") {
+        semana1 += bullet(
+          "Identificar 3–5 negocios o personas de tu barrio/ciudad que podrían beneficiarse de IA (más ventas, mejor comunicación, presencia digital)."
+        );
+      }
+
+      // Semana 2 – Primera oferta y prueba con gente real
+      semana2 += bullet(
+        "Diseñar una <strong>oferta simple</strong> (un servicio o producto) que puedas explicar en 2–3 frases."
+      );
+      semana2 += bullet(
+        "Crear ejemplos de antes/después usando IA (textos mejorados, piezas visuales, ideas de contenidos, etc.)."
+      );
+      semana2 += bullet(
+        "Contactar al menos a 10 personas/negocios de tu nicho (por WhatsApp, redes, email o en persona) ofreciendo tu ayuda con una prueba o precio promocional."
+      );
+      if (devices === "solo_movil") {
+        semana2 += bullet(
+          "Usar el móvil para todo: grabar videos cortos explicando lo que haces, mandar audios personalizados y usar apps de IA basadas en la nube."
+        );
+      }
+
+      // Semana 3 – Refinar y empaquetar
+      semana3 += bullet(
+        "Analizar qué mensajes funcionaron mejor (quién te respondió, qué interesó más) y ajustar tu oferta."
+      );
+      semana3 += bullet(
+        "Convertir lo que hiciste en un sistema: pasos claros que seguirás cada vez que tengas un nuevo cliente."
+      );
+      semana3 += bullet(
+        "Subir tus primeros resultados (testimonios, capturas, mejoras) a una página simple o perfil social profesional."
+      );
+      if (skill === "medio" || skill === "avanzado") {
+        semana3 += bullet(
+          "Empezar a explorar automatizaciones básicas (formularios + hojas de cálculo + IA) para hacer tu servicio más rápido y escalable."
+        );
+      }
+
+      // Semana 4 – Escala inicial y visión empresa
+      semana4 += bullet(
+        "Formalizar precios (por proyecto, por paquete mensual o por resultado) y dejar de trabajar gratis salvo pruebas muy estratégicas."
+      );
+      semana4 += bullet(
+        "Definir un sistema simple para conseguir clientes cada semana (ej: contactar X personas por día, publicar contenido Y veces por semana, pedir referidos)."
+      );
+      semana4 += bullet(
+        "Documentar todo el proceso con el objetivo de convertirlo después en un producto escalable (curso, comunidad, suscripción, app completa)."
+      );
+      semana4 += bullet(
+        "Escribir una visión a 12 meses: ¿cuántos clientes quieres? ¿qué facturación mensual? ¿cómo se ve la versión global de tu app ayudando a miles de personas?"
+      );
+
+      const html =
+        "<h4>Semana 1 – Fundamentos y nicho</h4><ul>" +
+        semana1 +
+        "</ul>" +
+        "<h4>Semana 2 – Primera oferta y validación</h4><ul>" +
+        semana2 +
+        "</ul>" +
+        "<h4>Semana 3 – Sistema y posicionamiento</h4><ul>" +
+        semana3 +
+        "</ul>" +
+        "<h4>Semana 4 – Escala inicial y visión global</h4><ul>" +
+        semana4 +
+        "</ul>";
+
+      return html;
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+  </script>
+</body>
+</html>
